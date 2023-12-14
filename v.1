@@ -1,0 +1,103 @@
+#создай игру "Лабиринт"!
+from pygame import *
+class dlR_spraitov(sprite.Sprite):
+    def __init__(self, kartinka, koordinata_x, koordinata_y, skorost):
+        super().__init__()    
+        self.image = transform.scale(image.load(kartinka), (65, 65))
+        self.speed = skorost
+        self.rect = self.image.get_rect()
+        self.rect.x = koordinata_x
+        self.rect.y = koordinata_y
+    def rastanyt_djyngli_B_okoshko(self):
+        okno.blit(self.image, (self.rect.x, self.rect.y))
+class Igroka(dlR_spraitov):
+    def ypravlenie(self):
+        keys = key.get_pressed()
+        if keys[K_LEFT] and self.rect.x > 5:
+            self.rect.x -= self.speed
+        if keys[K_RIGHT] and self.rect.x < width - 80:
+            self.rect.x += self.speed
+        if keys[K_UP] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys[K_DOWN] and self.rect.y < height - 80:
+            self.rect.y += self.speed
+class Brag(dlR_spraitov):
+    direction = 'left'
+    def ypravlenie_vraga(self):
+        if self.rect.x <= 470:
+            self.direction = 'right'
+        if self.rect.x >= width - 85:
+            self.direction = 'left'
+        if self.direction == 'left':
+            self.rect.x -= self.speed
+        else:
+            self.rect.x += self.speed
+
+class Cteni(sprite.Sprite):
+    def __init__(self, color_1, color_2, color_3, IIIupuna, BbICOTA, koordinata1_x, koordinata1_y):
+        super().__init__()
+        self.color_1 = color_1
+        self.color_2 = color_2
+        self.color_3 = color_3
+        self.width = IIIupuna
+        self.height = BbICOTA
+        self.image = Surface((self.width, self.height))  
+        self.image.fill((color_1, color_2, color_3))
+        self.rect = self.image.get_rect()
+        self.rect.x = koordinata1_x
+        self.rect.y = koordinata1_y
+    def rastanyt_djyngli_B_okoshko(self):
+        okno.blit(self.image, (self.rect.x, self.rect.y))
+#Игровая сцена:
+width = 700
+height = 500
+okno = display.set_mode((width, height))
+display.set_caption("Игра: лабиринт")
+background = transform.scale(image.load("background.jpg"), (width, height))
+polzovatel = Igroka('hero.png', 5, height - 80, 8)
+oxrannik = Brag('cyborg.png', width - 80, 280, 20)
+cokrovishe = dlR_spraitov('treasure.png', width - 120, height - 80, 0)
+stena_1 = Cteni(154, 205, 50, 450, 10, 100, 20)
+stena_2 = Cteni(154, 205, 50, 350, 10, 100, 480)
+stena_3 = Cteni(154, 205, 50, 10, 380, 100, 20)
+
+clock = time.Clock()
+mixer.init()
+mixer.music.load('jungles.ogg')
+mixer.music.play()
+
+zvyk_deneg = mixer.Sound('money.ogg')
+zvyk_ybiistva = mixer.Sound('kick.ogg')
+font.init()
+font = font.Font(None, 70)
+BbIUgPbIIII = font.render('Ты выиграл!', True, (255, 215, 0))
+proigrish = font.render('Ты проиграл!', True, (255, 215, 0))
+
+FPS = 50
+game = True
+finish = False
+while game:
+    for i in event.get():
+        if i.type == QUIT:
+            game = False
+    if finish != True:
+        okno.blit(background, (0, 0))
+        polzovatel.ypravlenie()
+        oxrannik.ypravlenie_vraga()
+        polzovatel.rastanyt_djyngli_B_okoshko()
+        oxrannik.rastanyt_djyngli_B_okoshko()
+        cokrovishe.rastanyt_djyngli_B_okoshko()
+        stena_1.rastanyt_djyngli_B_okoshko()
+        stena_2.rastanyt_djyngli_B_okoshko()
+        stena_3.rastanyt_djyngli_B_okoshko()
+        if sprite.collide_rect(polzovatel, oxrannik) or sprite.collide_rect(polzovatel, stena_1) or sprite.collide_rect(polzovatel, stena_2) or sprite.collide_rect(polzovatel, stena_3):
+           finish = True  
+           okno.blit(proigrish, (200, 200))
+           zvyk_ybiistva.play()
+        if sprite.collide_rect(polzovatel, cokrovishe):
+            finish = True
+            okno.blit(BbIUgPbIIII, (200, 200))
+            zvyk_deneg.play() 
+    display.update()
+    clock.tick(FPS)
+
